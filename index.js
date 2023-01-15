@@ -1,76 +1,78 @@
 const  {createStore} = require('redux');
 
-const INCREMENT = 'INCREMENT'
-const DECREMENT = 'DECREMENT'
-const RESET = 'RESET'
-const INCREMENT_BY_VALUE = 'INCREMENT_BY_VALUE'
+const ADD_USER = 'ADD_USER'
+// const DECREMENT = 'DECREMENT'
+// const RESET = 'RESET'
+// const INCREMENT_BY_VALUE = 'INCREMENT_BY_VALUE'
 
 const initialState = {
-    count : 0
+    users: ['anis'],
+    count : 1
 }
 
-const incrementAction = () => {
+const addUser = (user) => {
     return {
-        type : INCREMENT,
+        type : ADD_USER,
+        payload : user,
     };
 }
 
-const decrementAction = () => {
-    return {
-        type : DECREMENT,
-    };
-}
+// const decrementAction = () => {
+//     return {
+//         type : DECREMENT,
+//     };
+// }
 
-const resetAction = () => {
-    return {
-        type : RESET,
-    };
-}
+// const resetAction = () => {
+//     return {
+//         type : RESET,
+//     };
+// }
 
-const incrementByValue = (value) => {
-    return {
-        type : INCREMENT_BY_VALUE,
-        payload : value
-    };
-}
+// const incrementByValue = (value) => {
+//     return {
+//         type : INCREMENT_BY_VALUE,
+//         payload : value
+//     };
+// }
 
-const counterReducer = (state=initialState,action) => {
+const userReducer = (state=initialState,action) => {
     switch (action.type){
-        case INCREMENT:
+        case ADD_USER:
             return {
-                ...state,
+                user:[...state.users,action.payload],
                 count:state.count + 1,
             }
-        case DECREMENT:
-            return {
-                ...state,
-                count:state.count - 1,
-            }
-        case RESET:
-            return {
-                ...state,
-                count:0,
-            }
-        case INCREMENT_BY_VALUE:
-            return {
-                ...state,
-                count:state.count + action.payload,
-            }
+        // case DECREMENT:
+        //     return {
+        //         ...state,
+        //         count:state.count - 1,
+        //     }
+        // case RESET:
+        //     return {
+        //         ...state,
+        //         count:0,
+        //     }
+        // case INCREMENT_BY_VALUE:
+        //     return {
+        //         ...state,
+        //         count:state.count + action.payload,
+        //     }
         default:
-            state;
+            return state;
     }
 }
 
-const store = createStore(counterReducer);
+const store = createStore(userReducer);
 
 store.subscribe(()=>{
     console.log(store.getState());
 })
 
-store.dispatch(incrementAction());
-store.dispatch(incrementAction());
-store.dispatch(decrementAction());
-store.dispatch(resetAction());
-store.dispatch(incrementAction());
-store.dispatch(incrementAction());
-store.dispatch(incrementByValue(5));
+store.dispatch(addUser('irf'));
+// store.dispatch(incrementAction());
+// store.dispatch(decrementAction());
+// store.dispatch(resetAction());
+// store.dispatch(incrementAction());
+// store.dispatch(incrementAction());
+// store.dispatch(incrementByValue(5));
