@@ -1,25 +1,36 @@
+const { default: axios } = require('axios');
 const  {createStore, combineReducers, applyMiddleware} = require('redux');
-const { default: logger } = require('redux-logger');
+const { default: thunk } = require('redux-thunk');
 
-const ADD_PRODUCT = 'ADD_PRODUCT'
-const GET_PRODUCT = 'GET_PRODUCT'
+const GET_TODOS_REQUEST = 'GET_TODOS_REQUEST';
+const GET_TODOS_SUCCESS = 'GET_TODOS_SUCCESS';
+const GET_TODOS_FAILED = 'GET_TODOS_FAILED';
+const API_URL = 'https://jsonplaceholder.typicode.com/todos';
 
-const ProductInitialState = {
-    products: ['suger','salt'],
-    count : 2
+const initialTodoState = {
+    todos: [],
+    isLoading : false,
+    error: null
 }
 
 
-const addProduct = (product) => {
+const getTodosRequest = (product) => {
     return {
-        type : ADD_PRODUCT,
-        payload : product,
+        type : GET_TODOS_REQUEST,
     };
 }
 
-const getProduct = () => {
+const getTodosFailed = (error) => {
     return {
-        type : GET_PRODUCT
+        type : GET_TODOS_FAILED,
+        payload : error
+    };
+}
+
+const getTodosSuccess = (todos) => {
+    return {
+        type : GET_TODOS_SUCCESS,
+        payload : todos
     };
 }
 
@@ -27,29 +38,48 @@ const getProduct = () => {
 
 
 
-const productReducer = (state=ProductInitialState,action) => {
+const productReducer = (state=initialTodoState,action) => {
     switch (action.type){
-        case ADD_PRODUCT:
+        case GET_TODOS_REQUEST:
             return {
-                products:[...state.products,action.payload],
-                count:state.count + 1,
+                ...state,
+                isLoading : true,
             }
-        case GET_PRODUCT:
+        case GET_TODOS_FAILED:
             return {
-                ...state
+                ...state,
+                isLoading : false,
+                error: action.payload
+            }
+        case GET_TODOS_SUCCESS:
+            return {
+                ...state,
+                isLoading : false,
+                todos: action.payload,
+                error: null
             }
         default:
             return state;
     }
 }
 
-
-const store = createStore(productReducer,applyMiddleware(logger));
+const fetchData = () => {
+    return (dispatch) => {
+        dispatch(getTodosRequest())
+        axios.get(API_URL)
+        .then(response => {
+            const todos = response.data.map(todo => todo.title);
+            dispatch(getTodosSuccess(todos));
+        })
+        .catch(error => {
+            dispatch(getTodosFailed(error.message));
+        })
+    }
+}
+const store = createStore(productReducer,applyMiddleware(thunk));
 
 store.subscribe(()=>{
     console.log(store.getState());
 })
 
-store.dispatch(getProduct());
-store.dispatch(addProduct('irfa '));
-store.dispatch(getProduct());
+store.dispatch(fetchData());
